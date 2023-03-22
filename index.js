@@ -24,3 +24,13 @@ app.use(helmet());
 app.use(morgan("common"));
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
+// ------------------
+app.use((req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
+
+app.use((err, req, res, next) => {
+  const { status = 500, message = "Server error" } = err;
+  console.log("5");
+  res.status(status).json({ message });
+});
