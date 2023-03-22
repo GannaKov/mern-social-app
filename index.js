@@ -26,11 +26,12 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 // ------------------
 app.use((req, res) => {
+  console.log("app.use 1");
   res.status(404).json({ message: "Not found" });
 });
 
 app.use((err, req, res, next) => {
+  console.log("app.use 2");
   const { status = 500, message = "Server error" } = err;
-  console.log("5");
   res.status(status).json({ message });
 });

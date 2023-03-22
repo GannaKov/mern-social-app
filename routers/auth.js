@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const HttpError = require("../helpers/HttpError");
 // ---------------------------------
 //REGISTER
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
     // const salt = await bcrypt.genSalt(10);
@@ -19,7 +19,7 @@ router.post("/register", async (req, res) => {
     const user = await newUser.save();
     res.status(200).json(user);
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 });
 // -----------------------
@@ -46,7 +46,6 @@ router.post("/login", async (req, res, next) => {
 
     // res.status(200).json(user);
   } catch (err) {
-    console.log(err);
     next(err);
   }
 });
