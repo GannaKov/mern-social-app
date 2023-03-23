@@ -75,4 +75,60 @@ router.get("/:id", async (req, res, next) => {
     next(err);
   }
 });
+
+//follow a user
+router.put("/:id/follow", async (req, res, next) => {
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        throw HttpError(404, "Not found ");
+      }
+
+      const currentUser = await User.findById(req.body.userId);
+      if (!currentUser) {
+        throw HttpError(404, "Not found ");
+      }
+      if (!user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $push: { followers: req.body.userId } });
+        await currentUser.updateOne({ $push: { followings: req.params.id } });
+        res.status(200).json("user has been followed");
+      } else {
+        res.status(403).json("you allready follow this user");
+      }
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    res.status(403).json("you can't follow yourself");
+  }
+});
+
+//unfollow a user
+router.put("/:id/unfollow", async (req, res, next) => {
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        throw HttpError(404, "Not found ");
+      }
+
+      const currentUser = await User.findById(req.body.userId);
+      if (!currentUser) {
+        throw HttpError(404, "Not found ");
+      }
+      if (user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $pull: { followers: req.body.userId } });
+        await currentUser.updateOne({ $pull: { followings: req.params.id } });
+        res.status(200).json("user has been unfollowed");
+      } else {
+        res.status(403).json("you are not following this user");
+      }
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    res.status(403).json("you can't unfollow yourself");
+  }
+});
 module.exports = router;
