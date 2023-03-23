@@ -7,6 +7,7 @@ const morgan = require("morgan");
 dotenv.config();
 const userRouter = require("./routers/users");
 const authRouter = require("./routers/auth");
+const postRouter = require("./routers/posts");
 // ---------------------
 const { DB_HOST } = process.env;
 mongoose
@@ -24,6 +25,7 @@ app.use(helmet());
 app.use(morgan("common"));
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/posts", postRouter);
 // ------------------
 app.use((req, res) => {
   console.log("app.use 1");
