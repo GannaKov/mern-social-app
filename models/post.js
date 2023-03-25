@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 const mongoose = require("mongoose");
-
+const handleMongooseError = require("../helpers/handleMongooseError");
 //-----------------------------------
 const postSchema = new mongoose.Schema(
   {
@@ -22,6 +22,6 @@ const postSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+postSchema.post("save", handleMongooseError);
 const Post = model("post", postSchema);
 module.exports = { Post };

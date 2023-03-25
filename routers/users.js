@@ -38,6 +38,7 @@ router.put("/:id", async (req, res, next) => {
     return res.status(403).json("You can update only your account!");
   }
 });
+
 // Delete User
 router.delete("/:id", async (req, res, next) => {
   //   const { userId } = req.params;
@@ -57,15 +58,16 @@ router.delete("/:id", async (req, res, next) => {
     return res.status(403).json("You can delete only your account!");
   }
 });
+
 //get a User
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log("userId", id);
+
     const user = await User.findOne({ _id: id });
 
     console.log("user.id", user);
-    // const { password, updatedAt, ...other } = user._doc;
+
     if (!user) {
       throw HttpError(404, "Not found ");
     }

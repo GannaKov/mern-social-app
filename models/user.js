@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-
+const handleMongooseError = require("../helpers/handleMongooseError");
 // ----------------------------
 const userSchema = new Schema(
   {
@@ -59,6 +59,8 @@ const userSchema = new Schema(
   },
   { versionKey: false, timestamps: true }
 );
+userSchema.post("save", handleMongooseError);
+
 const User = model("user", userSchema);
 module.exports = { User };
 // module.exports = mongoose.model("User", UserSchema);

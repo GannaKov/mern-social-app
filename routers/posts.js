@@ -5,8 +5,12 @@ const { User } = require("../models/user");
 const { Post } = require("../models/post");
 const HttpError = require("../helpers/HttpError");
 //-----------------------------
-//create a post
+// async function findUser(userId) {
+//   const user = await User.findOne({ _id: userId });
+//   // console.log("user.id", user);
+// }
 
+//create a post !check User?
 router.post("/", async (req, res, next) => {
   try {
     // const { _id: owner } = req.user;
@@ -18,10 +22,20 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-//update a post
+//update a post!check User
 router.put("/:id", async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) {
+      throw HttpError(404, "Not found");
+    }
+    //-----
+    const { userId } = req.body;
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw HttpError(404, "User not found ");
+    }
+    //------
     if (post.userId === req.body.userId) {
       const result = await post.updateOne({ $set: req.body });
       if (!result) {
@@ -35,12 +49,20 @@ router.put("/:id", async (req, res, next) => {
     next(err);
   }
 });
-//delete a post
+//delete a post !check User
 router.delete("/:id", async (req, res, next) => {
-  console.log("id", req.params.id);
   try {
     const post = await Post.findById(req.params.id);
-    console.log(post);
+    if (!post) {
+      throw HttpError(404, "Not found");
+    }
+    //-----
+    const { userId } = req.body;
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw HttpError(404, "User not found ");
+    }
+    //------
     if (post.userId === req.body.userId) {
       await post.deleteOne();
       res.status(200).json("the post has been deleted");
@@ -52,11 +74,21 @@ router.delete("/:id", async (req, res, next) => {
     next(err);
   }
 });
-//like / dislike a post
 
-router.put("/:id/like", async (req, res) => {
+//like / dislike a post !check exist User
+router.put("/:id/like", async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) {
+      throw HttpError(404, "Not found");
+    }
+    //-----
+    const { userId } = req.body;
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw HttpError(404, "User not found ");
+    }
+    //------
     if (!post.likes.includes(req.body.userId)) {
       await post.updateOne({ $push: { likes: req.body.userId } });
       res.status(200).json("The post has been liked");
@@ -65,7 +97,39 @@ router.put("/:id/like", async (req, res) => {
       res.status(200).json("The post has been disliked");
     }
   } catch (err) {
-    res.status(500).json(err);
+    next(err);
+  }
+});
+
+//get a post
+router.get("/:id", async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      throw HttpError(404, "Not found");
+    }
+    res.status(200).json(post);
+  } catch (err) {
+    next(err);
+  }
+});
+
+//get timeline posts !change current user, sort posts
+router.get("/timeline/all", async (req, res, next) => {
+  try {
+    const currentUser = await User.findById(req.body.userId);
+    if (!currentUser) {
+      throw HttpError(404, "User not found ");
+    }
+    const userPosts = await Post.find({ userId: currentUser._id });
+    const friendPosts = await Promise.all(
+      currentUser.followings.map((friendId) => {
+        return Post.find({ userId: friendId });
+      })
+    );
+    res.json(userPosts.concat(...friendPosts));
+  } catch (err) {
+    next(err);
   }
 });
 //--------------------------

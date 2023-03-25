@@ -8,6 +8,10 @@ const HttpError = require("../helpers/HttpError");
 router.post("/register", async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      throw HttpError(409, "Email in use");
+    }
     // const salt = await bcrypt.genSalt(10);
     // const hashedPassword = await bcrypt.hash(password, salt);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,7 +20,7 @@ router.post("/register", async (req, res, next) => {
       email: email,
       password: hashedPassword,
     });
-    const user = await newUser.save();
+    await newUser.save();
     res.status(200).json(user);
   } catch (err) {
     next(err);
