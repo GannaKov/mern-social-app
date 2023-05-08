@@ -115,9 +115,9 @@ router.get("/:id", async (req, res, next) => {
 });
 
 //get timeline posts !change current user, sort posts
-router.get("/timeline/all", async (req, res, next) => {
+router.get("/timeline/:userId", async (req, res, next) => {
   try {
-    const currentUser = await User.findById(req.body.userId);
+    const currentUser = await User.findById(req.params.userId);
     if (!currentUser) {
       throw HttpError(404, "User not found ");
     }
@@ -127,7 +127,7 @@ router.get("/timeline/all", async (req, res, next) => {
         return Post.find({ userId: friendId });
       })
     );
-    res.json(userPosts.concat(...friendPosts));
+    res.status(200).json(userPosts.concat(...friendPosts));
   } catch (err) {
     next(err);
   }

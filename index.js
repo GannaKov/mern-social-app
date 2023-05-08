@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -10,6 +11,7 @@ const authRouter = require("./routers/auth");
 const postRouter = require("./routers/posts");
 // ---------------------
 const { DB_HOST } = process.env;
+
 mongoose
   .connect(DB_HOST)
   .then(() => {
@@ -20,6 +22,7 @@ mongoose
     console.log(error.message);
     process.exit(1);
   });
+app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
