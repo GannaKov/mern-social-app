@@ -25,8 +25,9 @@ mongoose
     console.log(error.message);
     process.exit(1);
   });
-app.use("/images", express.static(path.join(__dirname, "public/images")));
+
 const storeImage = path.join(path.join(__dirname, "public/images"));
+app.use("/images", express.static(storeImage));
 
 app.use(cors());
 app.use(express.json());
