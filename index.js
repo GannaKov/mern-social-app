@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const fs = require("fs").promises;
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
@@ -25,21 +26,23 @@ mongoose
     process.exit(1);
   });
 app.use("/images", express.static(path.join(__dirname, "public/images")));
+const storeImage = path.join(path.join(__dirname, "public/images"));
+
 app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 
 //------------------
-// const uploadDir = path.join(process.cwd(), "uploads");
+
+// const fileSuf = Date.now();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/images"); //uploadDir
+    cb(null, "public/images"); //uploadDir//"public/images"
   },
   filename: (req, file, cb) => {
-    console.log("file", file);
-    console.log("req.body.name", req.body.name);
-    cb(null, file.originalname);
+    // console.log("file.originalname", fileSuf + file.originalname);
+    cb(null, file.originalname); //file.originalname//req.body.name
   },
   limits: {
     fileSize: 1048576,
@@ -50,7 +53,15 @@ const upload = multer({
 });
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
+  console.log("req.body", req.body);
+  console.log("req.file", req.file);
+  console.log("storeImage", storeImage);
+  const { name } = req.body;
+  const { path: temporaryName } = req.file;
+  const fileName = path.join(storeImage, name);
+  console.log("fileName", fileName); //
   try {
+    await fs.rename(temporaryName, fileName);
     return res.status(200).json("File uploaded successfully");
   } catch (err) {
     console.log(err);

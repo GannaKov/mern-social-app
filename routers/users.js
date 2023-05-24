@@ -45,8 +45,7 @@ router.delete("/:id", async (req, res, next) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
       const user = await User.findOneAndDelete({ _id: req.params.id });
-      console.log("user", user);
-      console.log("req.params.id", req.params.id);
+
       if (!user) {
         throw HttpError(404, "Not found");
       }
@@ -63,16 +62,13 @@ router.delete("/:id", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   const userId = req.query.userId;
   const username = req.query.username;
-  console.log("in user", req.query);
-  console.log("in user", req.params);
+
   try {
     // const { id } = req.params;
 
     const user = userId
       ? await User.findById(userId)
       : await User.findOne({ username: username });
-
-    console.log("user.id", user);
 
     if (!user) {
       throw HttpError(404, "Not found ");
